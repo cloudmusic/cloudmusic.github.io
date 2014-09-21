@@ -4,7 +4,7 @@
   <title><![CDATA[cloudmusic android team dev-blog]]></title>
   <link href="http://cloudmusic.github.io/atom.xml" rel="self"/>
   <link href="http://cloudmusic.github.io/"/>
-  <updated>2014-09-21T23:12:31+08:00</updated>
+  <updated>2014-09-21T23:46:29+08:00</updated>
   <id>http://cloudmusic.github.io/</id>
   <author>
     <name><![CDATA[]]></name>
@@ -12,5 +12,27 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[hello world]]></title>
+    <link href="http://cloudmusic.github.io/blog/2014/09/21/hello-world/"/>
+    <updated>2014-09-21T23:30:17+08:00</updated>
+    <id>http://cloudmusic.github.io/blog/2014/09/21/hello-world</id>
+    <content type="html"><![CDATA[<h1>Note</h1>
+
+<p>This is the first article writen by markdown</p>
+
+<p>This blog used for:</p>
+
+<ul>
+<li>Record the dev commons</li>
+<li>Make progress for android team</li>
+<li>For the best music player</li>
+</ul>
+
+
+<p>Our page <a href="http://music.163.com/#/user/home?id=11476701">cloudmusic</a></p>
+]]></content>
+  </entry>
   
 </feed>
