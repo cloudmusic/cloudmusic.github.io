@@ -3,11 +3,11 @@
 # ----------------------- #
 
 url: http://cloudmusic.github.io
-title: My Octopress Blog
-subtitle: A blogging framework for hackers.
-author: Your Name
+title: cloudmusic android team dev-blog
+subtitle: for the best music player 
+author: 
 simple_search: https://www.google.com/search
-description:
+description: for the best music player
 
 # Default date format is "ordinal" (resulting in "July 22nd 2007")
 # You can customize the format as defined in
@@ -19,7 +19,7 @@ date_format: "ordinal"
 subscribe_rss: /atom.xml
 subscribe_email:
 # RSS feeds can list your email address if you like
-email:
+email: androidfb@163.com
 
 # ----------------------- #
 #    Jekyll & Plugins     #
