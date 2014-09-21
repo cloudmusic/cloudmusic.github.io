@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[My Octopress Blog]]></title>
+  <title><![CDATA[cloudmusic android team dev-blog]]></title>
   <link href="http://cloudmusic.github.io/atom.xml" rel="self"/>
   <link href="http://cloudmusic.github.io/"/>
-  <updated>2014-09-21T22:59:07+08:00</updated>
+  <updated>2014-09-21T23:12:31+08:00</updated>
   <id>http://cloudmusic.github.io/</id>
   <author>
-    <name><![CDATA[Your Name]]></name>
-    
+    <name><![CDATA[]]></name>
+    <email><![CDATA[androidfb@163.com]]></email>
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
