@@ -9,7 +9,8 @@ article{
 	@media screen and (max-width: 600px){
 		padding: 15px 0;
 	}
-	h1.title{
+	h2.title{
+		font-size: 1.8em;
 		font-weight: 300;
 		line-height: 35px;
 		margin-bottom: 20px;
@@ -71,7 +72,6 @@ article{
 		img, video{
 			max-width: 100%;
 			height: auto;
-			@extend .basic-alignment;
 		}
 		blockquote{
 			background: $color-gray04;
