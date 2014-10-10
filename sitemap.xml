@@ -3,17 +3,9 @@
   
   
   <url>
-    <loc>http://cloudmusic.github.io/blog/2014/10/10/test-2/</loc>
+    <loc>http://cloudmusic.github.io/blog/2014/10/10/android-view-pressed/</loc>
     
     <lastmod>2014-10-10T14:36:17+08:00</lastmod>
-    
-    <priority>0.8</priority>
-  </url>
-  
-  <url>
-    <loc>http://cloudmusic.github.io/blog/2014/09/21/hello-world/</loc>
-    
-    <lastmod>2014-09-21T23:30:17+08:00</lastmod>
     
     <priority>0.8</priority>
   </url>
@@ -21,14 +13,14 @@
   
   <url>
     <loc>http://cloudmusic.github.io/blog/archives/</loc>
-    <lastmod>2014-10-10T14:17:31+08:00</lastmod>
+    <lastmod>2014-10-10T14:43:10+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>http://cloudmusic.github.io/</loc>
-    <lastmod>2014-10-10T14:17:31+08:00</lastmod>
+    <lastmod>2014-10-10T14:43:10+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>

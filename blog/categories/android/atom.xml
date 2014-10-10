@@ -4,7 +4,7 @@
   <title><![CDATA[Category: android | cloudmusic android team dev-blog]]></title>
   <link href="http://cloudmusic.github.io/blog/categories/android/atom.xml" rel="self"/>
   <link href="http://cloudmusic.github.io/"/>
-  <updated>2014-10-10T14:17:31+08:00</updated>
+  <updated>2014-10-10T14:43:10+08:00</updated>
   <id>http://cloudmusic.github.io/</id>
   <author>
     <name><![CDATA[]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[android子view的pressed状态受父view的clickable影响分析]]></title>
-    <link href="http://cloudmusic.github.io/blog/2014/10/10/test-2/"/>
+    <link href="http://cloudmusic.github.io/blog/2014/10/10/android-view-pressed/"/>
     <updated>2014-10-10T14:36:17+08:00</updated>
-    <id>http://cloudmusic.github.io/blog/2014/10/10/test-2</id>
+    <id>http://cloudmusic.github.io/blog/2014/10/10/android-view-pressed</id>
     <content type="html"><![CDATA[<p>android从sdk16开始，修改了onTouchEvent的ACTION_DOWN代码(<a href="http://stackoverflow.com/questions/14179431/android-child-view-sharing-pressed-state-from-its-parent-view-in-jelly-bean">Android: Child elements sharing pressed state with their parent even when duplicateParentState specified</a>)，如下：</p>
 
 <p>sdk16以前：
