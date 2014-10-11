@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: lj | cloudmusic android team dev-blog]]></title>
+  <link href="http://cloudmusic.github.io/blog/categories/lj/atom.xml" rel="self"/>
+  <link href="http://cloudmusic.github.io/"/>
+  <updated>2014-10-11T10:06:11+08:00</updated>
+  <id>http://cloudmusic.github.io/</id>
+  <author>
+    <name><![CDATA[]]></name>
+    <email><![CDATA[androidfb@163.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[android子view的pressed状态受父view的clickable影响分析]]></title>
+    <link href="http://cloudmusic.github.io/blog/2014/10/10/test-2/"/>
+    <updated>2014-10-10T14:36:17+08:00</updated>
+    <id>http://cloudmusic.github.io/blog/2014/10/10/test-2</id>
+    <content type="html"><![CDATA[<p>android从sdk16开始，修改了onTouchEvent的ACTION_DOWN代码(<a href="http://stackoverflow.com/questions/14179431/android-child-view-sharing-pressed-state-from-its-parent-view-in-jelly-bean">Android: Child elements sharing pressed state with their parent even when duplicateParentState specified</a>)，如下：</p>
+
+<p>sdk16以前：
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">case</span> <span class="n">MotionEvent</span><span class="o">.</span><span class="na">ACTION_DOWN</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">mHasPerformedLongPress</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span>            <span class="nf">if</span> <span class="o">(</span><span class="n">performButtonActionOnTouchDown</span><span class="o">(</span><span class="n">event</span><span class="o">))</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Walk up the hierarchy to determine if we&#39;re inside a scrolling container.</span>
+</span><span class='line'>        <span class="kt">boolean</span> <span class="n">isInScrollingContainer</span> <span class="o">=</span> <span class="n">isInScrollingContainer</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// For views inside a scrolling container, delay the pressed feedback for</span>
+</span><span class='line'>        <span class="c1">// a short period in case this is a scroll.</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">isInScrollingContainer</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">mPrivateFlags</span> <span class="o">|=</span> <span class="n">PREPRESSED</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">mPendingCheckForTap</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">mPendingCheckForTap</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">CheckForTap</span><span class="o">();</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>            <span class="n">postDelayed</span><span class="o">(</span><span class="n">mPendingCheckForTap</span><span class="o">,</span> <span class="n">ViewConfiguration</span><span class="o">.</span><span class="na">getTapTimeout</span><span class="o">());</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">// Not inside a scrolling container, so show the feedback right away</span>
+</span><span class='line'>            <span class="n">mPrivateFlags</span> <span class="o">|=</span> <span class="n">PRESSED</span><span class="o">;</span> <span class="c1">//comment by bran</span>
+</span><span class='line'>            <span class="n">refreshDrawableState</span><span class="o">();</span>
+</span><span class='line'>            <span class="n">checkForLongClick</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">break</span><span class="o">;</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">sdk16及以后</span><span class="err">：</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="k">case</span> <span class="n">MotionEvent</span><span class="o">.</span><span class="na">ACTION_DOWN</span><span class="o">:</span>
+</span><span class='line'>        <span class="n">mHasPerformedLongPress</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">performButtonActionOnTouchDown</span><span class="o">(</span><span class="n">event</span><span class="o">))</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Walk up the hierarchy to determine if we&#39;re inside a scrolling container.</span>
+</span><span class='line'>        <span class="kt">boolean</span> <span class="n">isInScrollingContainer</span> <span class="o">=</span> <span class="n">isInScrollingContainer</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// For views inside a scrolling container, delay the pressed feedback for</span>
+</span><span class='line'>        <span class="c1">// a short period in case this is a scroll.</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">isInScrollingContainer</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">mPrivateFlags</span> <span class="o">|=</span> <span class="n">PFLAG_PREPRESSED</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">mPendingCheckForTap</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">mPendingCheckForTap</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">CheckForTap</span><span class="o">();</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>            <span class="n">postDelayed</span><span class="o">(</span><span class="n">mPendingCheckForTap</span><span class="o">,</span> <span class="n">ViewConfiguration</span><span class="o">.</span><span class="na">getTapTimeout</span><span class="o">());</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">// Not inside a scrolling container, so show the feedback right away</span>
+</span><span class='line'>            <span class="n">setPressed</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">checkForLongClick</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">break</span><span class="o">;</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span>
+</span><span class='line'><span class="n">后者会调用setPressed方法</span><span class="err">，</span><span class="n">代码如下</span><span class="err">：</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="kd">public</span> <span class="kt">void</span> <span class="nf">setPressed</span><span class="o">(</span><span class="kt">boolean</span> <span class="n">pressed</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'><span class="kd">final</span> <span class="kt">boolean</span> <span class="n">needsRefresh</span> <span class="o">=</span> <span class="n">pressed</span> <span class="o">!=</span> <span class="o">((</span><span class="n">mPrivateFlags</span> <span class="o">&amp;</span><span class="n">amp</span><span class="o">;</span> <span class="n">PFLAG_PRESSED</span><span class="o">)</span> <span class="o">==</span> <span class="n">PFLAG_PRESSED</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">(</span><span class="n">pressed</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">mPrivateFlags</span> <span class="o">|=</span> <span class="n">PFLAG_PRESSED</span><span class="o">;</span>
+</span><span class='line'><span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">mPrivateFlags</span> <span class="o">&amp;</span><span class="n">amp</span><span class="o">;=</span> <span class="o">~</span><span class="n">PFLAG_PRESSED</span><span class="o">;</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">(</span><span class="n">needsRefresh</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">refreshDrawableState</span><span class="o">();</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'><span class="n">dispatchSetPressed</span><span class="o">(</span><span class="n">pressed</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//viewgroup的实现</span>
+</span><span class='line'><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">dispatchSetPressed</span><span class="o">(</span><span class="kt">boolean</span> <span class="n">pressed</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'><span class="kd">final</span> <span class="n">View</span><span class="o">[]</span> <span class="n">children</span> <span class="o">=</span> <span class="n">mChildren</span><span class="o">;</span>
+</span><span class='line'><span class="kd">final</span> <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="n">mChildrenCount</span><span class="o">;</span>
+</span><span class='line'><span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&amp;</span><span class="n">lt</span><span class="o">;</span> <span class="n">count</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">final</span> <span class="n">View</span> <span class="n">child</span> <span class="o">=</span> <span class="n">children</span><span class="o">[</span><span class="n">i</span><span class="o">];</span>
+</span><span class='line'>    <span class="c1">// Children that are clickable on their own should not</span>
+</span><span class='line'>    <span class="c1">// show a pressed state when their parent view does.</span>
+</span><span class='line'>    <span class="c1">// Clearing a pressed state always propagates.</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(!</span><span class="n">pressed</span> <span class="o">||</span> <span class="o">(!</span><span class="n">child</span><span class="o">.</span><span class="na">isClickable</span><span class="o">()</span> <span class="o">&amp;</span><span class="n">amp</span><span class="o">;&amp;</span><span class="n">amp</span><span class="o">;</span> <span class="o">!</span><span class="n">child</span><span class="o">.</span><span class="na">isLongClickable</span><span class="o">()))</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">child</span><span class="o">.</span><span class="na">setPressed</span><span class="o">(</span><span class="n">pressed</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="err">```</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">可以看出sdk16以后如果子view是</span><span class="o">!</span><span class="n">isClickable</span><span class="err">，</span><span class="n">父view是isClickable</span><span class="err">（</span><span class="n">父view如果是</span><span class="o">!</span><span class="n">isClickable都不会处理ACTION_DOWN事件</span><span class="err">），</span><span class="n">则即使在子view区域外的点击也会触发子view的pressed行为</span><span class="err">。</span><span class="n">这样改的原因不得而知</span><span class="err">，</span><span class="n">但个人觉得这不是正常期望的</span><span class="err">，</span><span class="n">UI表现上来看</span><span class="err">，</span><span class="n">父view点击任何区域子view都会触发pressed</span><span class="err">。</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">这种情景是存在的</span><span class="err">，</span><span class="n">比如子view是不可点</span><span class="err">，</span><span class="n">但又要设置父view可点以防点击父view会触发父父view事件</span><span class="err">。</span><span class="n">如果要处理这种情况</span><span class="err">，</span><span class="n">父view可以覆盖dispatchSetPressed方法进行重写</span><span class="err">，</span><span class="n">或者直接父view设置setEnable</span><span class="o">(</span><span class="kc">false</span><span class="o">)</span><span class="err">。</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">]]&gt;&lt;/</span><span class="n">content</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="o">&lt;/</span><span class="n">entry</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">&lt;</span><span class="n">entry</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">title</span> <span class="n">type</span><span class="o">=</span><span class="s">&quot;html&quot;</span><span class="o">&gt;&lt;![</span><span class="n">CDATA</span><span class="o">[</span><span class="n">android子view的pressed状态受父view的clickable影响分析</span><span class="o">]]&gt;&lt;/</span><span class="n">title</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">link</span> <span class="n">href</span><span class="o">=</span><span class="s">&quot;http://cloudmusic.github.io/blog/2014/10/10/android-view-pressed/&quot;</span><span class="o">/&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">updated</span><span class="o">&gt;</span><span class="mi">2014</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">10</span><span class="nl">T14:</span><span class="mi">36</span><span class="o">:</span><span class="mi">17</span><span class="o">+</span><span class="mi">08</span><span class="o">:</span><span class="mi">00</span><span class="o">&lt;/</span><span class="n">updated</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">id</span><span class="o">&gt;</span><span class="nl">http:</span><span class="c1">//cloudmusic.github.io/blog/2014/10/10/android-view-pressed&lt;/id&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">content</span> <span class="n">type</span><span class="o">=</span><span class="s">&quot;html&quot;</span><span class="o">&gt;&lt;![</span><span class="n">CDATA</span><span class="o">[&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">android从sdk16开始</span><span class="err">，</span><span class="n">修改了onTouchEvent的ACTION_DOWN代码</span><span class="o">(&lt;</span><span class="n">a</span> <span class="n">href</span><span class="o">=</span><span class="s">&quot;http://stackoverflow.com/questions/14179431/android-child-view-sharing-pressed-state-from-its-parent-view-in-jelly-bean&quot;</span><span class="o">&gt;</span><span class="nl">Android:</span> <span class="n">Child</span> <span class="n">elements</span> <span class="n">sharing</span> <span class="n">pressed</span> <span class="n">state</span> <span class="n">with</span> <span class="n">their</span> <span class="n">parent</span> <span class="n">even</span> <span class="n">when</span> <span class="n">duplicateParentState</span> <span class="n">specified</span><span class="o">&lt;/</span><span class="n">a</span><span class="o">&gt;)</span><span class="err">，</span><span class="n">如下</span><span class="err">：</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">sdk16以前</span><span class="err">：</span>
+</span></code></pre></td></tr></table></div></figure>java
+    case MotionEvent.ACTION_DOWN:
+                mHasPerformedLongPress = false;</p>
+
+<pre><code>            if (performButtonActionOnTouchDown(event)) {
+                break;
+            }
+
+            // Walk up the hierarchy to determine if we're inside a scrolling container.
+            boolean isInScrollingContainer = isInScrollingContainer();
+
+            // For views inside a scrolling container, delay the pressed feedback for
+            // a short period in case this is a scroll.
+            if (isInScrollingContainer) {
+                mPrivateFlags |= PREPRESSED;
+                if (mPendingCheckForTap == null) {
+                    mPendingCheckForTap = new CheckForTap();
+                }
+                postDelayed(mPendingCheckForTap, ViewConfiguration.getTapTimeout());
+            } else {
+                // Not inside a scrolling container, so show the feedback right away
+                mPrivateFlags |= PRESSED; //comment by bran
+                refreshDrawableState();
+                checkForLongClick(0);
+            }
+            break;
+</code></pre>
+
+<pre><code>sdk16及以后：
+</code></pre>
+
+<pre><code>case MotionEvent.ACTION_DOWN:
+            mHasPerformedLongPress = false;
+
+            if (performButtonActionOnTouchDown(event)) {
+                break;
+            }
+
+            // Walk up the hierarchy to determine if we're inside a scrolling container.
+            boolean isInScrollingContainer = isInScrollingContainer();
+
+            // For views inside a scrolling container, delay the pressed feedback for
+            // a short period in case this is a scroll.
+            if (isInScrollingContainer) {
+                mPrivateFlags |= PFLAG_PREPRESSED;
+                if (mPendingCheckForTap == null) {
+                    mPendingCheckForTap = new CheckForTap();
+                }
+                postDelayed(mPendingCheckForTap, ViewConfiguration.getTapTimeout());
+            } else {
+                // Not inside a scrolling container, so show the feedback right away
+                setPressed(true);
+                checkForLongClick(0);
+            }
+            break;
+</code></pre>
+
+<pre><code>
+后者会调用setPressed方法，代码如下：
+</code></pre>
+
+<pre><code>public void setPressed(boolean pressed) {
+    final boolean needsRefresh = pressed != ((mPrivateFlags &amp; PFLAG_PRESSED) == PFLAG_PRESSED);
+
+    if (pressed) {
+        mPrivateFlags |= PFLAG_PRESSED;
+    } else {
+        mPrivateFlags &amp;= ~PFLAG_PRESSED;
+    }
+
+    if (needsRefresh) {
+        refreshDrawableState();
+    }
+    dispatchSetPressed(pressed);
+}
+
+//viewgroup的实现
+protected void dispatchSetPressed(boolean pressed) {
+    final View[] children = mChildren;
+    final int count = mChildrenCount;
+    for (int i = 0; i &lt; count; i++) {
+        final View child = children[i];
+        // Children that are clickable on their own should not
+        // show a pressed state when their parent view does.
+        // Clearing a pressed state always propagates.
+        if (!pressed || (!child.isClickable() &amp;&amp; !child.isLongClickable())) {
+            child.setPressed(pressed);
+        }
+    }
+}
+</code></pre>
+
+<p>&#8220;`</p>
+
+<p>可以看出sdk16以后如果子view是!isClickable，父view是isClickable（父view如果是!isClickable都不会处理ACTION_DOWN事件），则即使在子view区域外的点击也会触发子view的pressed行为。这样改的原因不得而知，但个人觉得这不是正常期望的，UI表现上来看，父view点击任何区域子view都会触发pressed。</p>
+
+<p>这种情景是存在的，比如子view是不可点，但又要设置父view可点以防点击父view会触发父父view事件。如果要处理这种情况，父view可以覆盖dispatchSetPressed方法进行重写，或者直接父view设置setEnable(false)。</p>
+]]></content>
+  </entry>
+  
+</feed>
