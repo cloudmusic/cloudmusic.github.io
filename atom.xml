@@ -4,7 +4,7 @@
   <title><![CDATA[cloudmusic android team dev_blog]]></title>
   <link href="http://cloudmusic.github.io/atom.xml" rel="self"/>
   <link href="http://cloudmusic.github.io/"/>
-  <updated>2014-10-11T10:19:04+08:00</updated>
+  <updated>2014-10-11T13:22:19+08:00</updated>
   <id>http://cloudmusic.github.io/</id>
   <author>
     <name><![CDATA[]]></name>
@@ -196,4 +196,5 @@
 <p>这种情景是存在的，比如子view是不可点，但又要设置父view可点以防点击父view会触发父父view事件。如果要处理这种情况，父view可以覆盖dispatchSetPressed方法进行重写，或者直接父view设置setEnable(false)。</p>
 ]]></content>
   </entry>
+  
 </feed>
