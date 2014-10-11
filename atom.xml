@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[cloudmusic android team dev-blog]]></title>
+  <title><![CDATA[cloudmusic android team dev_blog]]></title>
   <link href="http://cloudmusic.github.io/atom.xml" rel="self"/>
   <link href="http://cloudmusic.github.io/"/>
-  <updated>2014-10-11T10:06:11+08:00</updated>
+  <updated>2014-10-11T10:19:04+08:00</updated>
   <id>http://cloudmusic.github.io/</id>
   <author>
     <name><![CDATA[]]></name>
