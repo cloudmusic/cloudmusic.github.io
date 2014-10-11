@@ -1,4 +1,0 @@
-User-agent: *
-Disallow: 
-
-Sitemap: http://cloudmusic.github.io/sitemap.xml 
