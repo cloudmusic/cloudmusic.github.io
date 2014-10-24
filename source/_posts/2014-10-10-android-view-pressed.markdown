@@ -3,7 +3,7 @@ layout: post
 title: "android子view的pressed状态受父view的clickable影响分析"
 date: 2014-10-10 14:36:17 +0800
 comments: true
-categories: lj android
+categories: lj android view clickable
 ---
 android从sdk16开始，修改了onTouchEvent的ACTION_DOWN代码([Android: Child elements sharing pressed state with their parent even when duplicateParentState specified][1])，如下：
 
