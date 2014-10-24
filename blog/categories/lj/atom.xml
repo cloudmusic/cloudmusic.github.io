@@ -4,7 +4,7 @@
   <title><![CDATA[Category: lj | cloudmusic android team dev_blog]]></title>
   <link href="http://cloudmusic.github.io/blog/categories/lj/atom.xml" rel="self"/>
   <link href="http://cloudmusic.github.io/"/>
-  <updated>2014-10-12T01:56:50+08:00</updated>
+  <updated>2014-10-24T11:18:25+08:00</updated>
   <id>http://cloudmusic.github.io/</id>
   <author>
     <name><![CDATA[]]></name>
@@ -14,6 +14,126 @@
 
   
   <entry>
+    <title type="html"><![CDATA[使用FragmentPagerAdapter的fragment第二次打开不能显示内容的问题分析]]></title>
+    <link href="http://cloudmusic.github.io/blog/2014/10/24/fragmentpageradapter-doesnt-show-fragment-secondtime/"/>
+    <updated>2014-10-24T11:03:20+08:00</updated>
+    <id>http://cloudmusic.github.io/blog/2014/10/24/fragmentpageradapter-doesnt-show-fragment-secondtime</id>
+    <content type="html"><![CDATA[<p>在使用viewpager的时候有两个adapter：FragmentPagerAdapter和FragmentStatePagerAdapter，区别在于他们的instantiateItem方法是不一样的：</p>
+
+<p>FragmentPagerAdapter</p>
+
+<pre><code class="java">
+    public Object instantiateItem(ViewGroup container, int position) {
+        if (mCurTransaction == null) {
+
+            mCurTransaction = mFragmentManager.beginTransaction();
+        }
+
+        final long itemId = getItemId(position);
+
+        // Do we already have this fragment?
+        String name = makeFragmentName(container.getId(), itemId);
+        Fragment fragment = mFragmentManager.findFragmentByTag(name);
+        if (fragment != null) {
+            if (DEBUG) Log.v(TAG, "Attaching item #" + itemId + ": f=" + fragment);
+            mCurTransaction.attach(fragment);
+        } else {
+            fragment = getItem(position);
+            if (DEBUG) Log.v(TAG, "Adding item #" + itemId + ": f=" + fragment);
+            mCurTransaction.add(container.getId(), fragment,
+                    makeFragmentName(container.getId(), itemId));
+        }
+        if (fragment != mCurrentPrimaryItem) {
+            fragment.setMenuVisibility(false);
+            fragment.setUserVisibleHint(false);
+        }
+
+        return fragment;
+    }
+</code></pre>
+
+<p>FragmentStatePagerAdapter</p>
+
+<pre><code class="java">
+    public Object instantiateItem(ViewGroup container, int position) {
+        // If we already have this item instantiated, there is nothing
+        // to do.  This can happen when we are restoring the entire pager
+        // from its saved state, where the fragment manager has already
+        // taken care of restoring the fragments we previously had instantiated.
+        if (mFragments.size() &gt; position) {
+            Fragment f = mFragments.get(position);
+            if (f != null) {
+                return f;
+            }
+        }
+
+        if (mCurTransaction == null) {
+            mCurTransaction = mFragmentManager.beginTransaction();
+        }
+
+        Fragment fragment = getItem(position);
+        if (DEBUG) Log.v(TAG, "Adding item #" + position + ": f=" + fragment);
+        if (mSavedState.size() &gt; position) {
+            Fragment.SavedState fss = mSavedState.get(position);
+            if (fss != null) {
+                fragment.setInitialSavedState(fss);
+            }
+        }
+        while (mFragments.size() &lt;= position) {
+            mFragments.add(null);
+        }
+        fragment.setMenuVisibility(false);
+        fragment.setUserVisibleHint(false);
+        mFragments.set(position, fragment);
+        mCurTransaction.add(container.getId(), fragment);
+
+        return fragment;
+    }
+</code></pre>
+
+<p>FragmentPagerAdapter会将adapter的每个fragment加入fragmentManager管理，如果初始化adapter传的是getSupportFragmentManager(),则每个fragment都会放到activity的fragmentManager里面去。这样就会造成当viewpager所在的fragment因为popFromBackStack被移除后，再次add一次viewpager所在的fragment，viewpager里面不会显示出来fragment内容。原因是这样的：</p>
+
+<p>第一次FragmentPagerAdapter的instantiateItem方法会把每个fragment加入activity的fragmentManager当中，popFromBackStack这个viewpager所在的fragment时，并不会将viewpager里面的每个fragment调用detach。第二次就会发现fragment已经存在，则直接调用mCurTransaction.attach方法，而attachFragment方法缺发现fragment未被detach则直接跳过了：</p>
+
+<pre><code class="java">
+    public void attachFragment(Fragment fragment, int transition, int transitionStyle) {
+        if (DEBUG) Log.v(TAG, "attach: " + fragment);
+        if (fragment.mDetached) {
+            fragment.mDetached = false;
+            if (!fragment.mAdded) {
+                if (mAdded == null) {
+                    mAdded = new ArrayList&lt;Fragment&gt;();
+                }
+                if (mAdded.contains(fragment)) {
+                    throw new IllegalStateException("Fragment already added: " + fragment);
+                }
+                if (DEBUG) Log.v(TAG, "add from attach: " + fragment);
+                mAdded.add(fragment);
+                fragment.mAdded = true;
+                if (fragment.mHasMenu &amp;&amp; fragment.mMenuVisible) {
+                    mNeedMenuInvalidate = true;
+                }
+                moveToState(fragment, mCurState, transition, transitionStyle, false);
+            }
+        }
+    }
+</code></pre>
+
+<p>如果使用FragmentStatePagerAdapter则不会出现这个问题，它自己内部使用mFragments数组维持fragment缓存，因为我们重新打开viewpager所在的fragment时，重新初始化了一个新的viewpager adapter，所以其实始终没用到这个缓存，每次都会重新使用getItem来new出来新fragment，然后调用mCurTransaction.add加入。</p>
+
+<h2>要避免这个问题有几种方法：</h2>
+
+<p>1.使用FragmentStatePagerAdapter
+2.初始化viewpager的adapter的时候不要使用getSupportFragmentManager()，而使用getChildFragmentManager()。这样就会找不到缓存的fragment。
+3.或者使用FragmentPagerAdapter，在viewpager所在的fragment被detach的时候显示detach viewpager里面的每一个fragment</p>
+
+<p>FragmentPagerAdapter和FragmentStatePagerAdapter区别在于：前者会保存fragment对象，后者仅会保存fragment的状态能进行恢复，占用内存少一些。</p>
+
+<p>官方也有篇讨论帖：看<a href="https://code.google.com/p/android/issues/detail?id=59579&amp;q=FragmentPagerAdapter%20instantiateItem&amp;colspec=ID%20Type%20Status%20Owner%20Summary%20Stars">这里</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[android子view的pressed状态受父view的clickable影响分析]]></title>
     <link href="http://cloudmusic.github.io/blog/2014/10/10/android-view-pressed/"/>
     <updated>2014-10-10T14:36:17+08:00</updated>
@@ -21,41 +141,67 @@
     <content type="html"><![CDATA[<p>android从sdk16开始，修改了onTouchEvent的ACTION_DOWN代码(<a href="http://stackoverflow.com/questions/14179431/android-child-view-sharing-pressed-state-from-its-parent-view-in-jelly-bean">Android: Child elements sharing pressed state with their parent even when duplicateParentState specified</a>)，如下：</p>
 
 <p>sdk16以前：
-&#8220;`java
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">case</span> <span class="n">MotionEvent</span><span class="o">.</span><span class="na">ACTION_DOWN</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">mHasPerformedLongPress</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span>            <span class="nf">if</span> <span class="o">(</span><span class="n">performButtonActionOnTouchDown</span><span class="o">(</span><span class="n">event</span><span class="o">))</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Walk up the hierarchy to determine if we&#39;re inside a scrolling container.</span>
+</span><span class='line'>        <span class="kt">boolean</span> <span class="n">isInScrollingContainer</span> <span class="o">=</span> <span class="n">isInScrollingContainer</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// For views inside a scrolling container, delay the pressed feedback for</span>
+</span><span class='line'>        <span class="c1">// a short period in case this is a scroll.</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">isInScrollingContainer</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">mPrivateFlags</span> <span class="o">|=</span> <span class="n">PREPRESSED</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">mPendingCheckForTap</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">mPendingCheckForTap</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">CheckForTap</span><span class="o">();</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>            <span class="n">postDelayed</span><span class="o">(</span><span class="n">mPendingCheckForTap</span><span class="o">,</span> <span class="n">ViewConfiguration</span><span class="o">.</span><span class="na">getTapTimeout</span><span class="o">());</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">// Not inside a scrolling container, so show the feedback right away</span>
+</span><span class='line'>            <span class="n">mPrivateFlags</span> <span class="o">|=</span> <span class="n">PRESSED</span><span class="o">;</span> <span class="c1">//comment by bran</span>
+</span><span class='line'>            <span class="n">refreshDrawableState</span><span class="o">();</span>
+</span><span class='line'>            <span class="n">checkForLongClick</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">break</span><span class="o">;</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">sdk16及以后</span><span class="err">：</span>
+</span></code></pre></td></tr></table></div></figure>java
     case MotionEvent.ACTION_DOWN:
                 mHasPerformedLongPress = false;</p>
 
 <pre><code>            if (performButtonActionOnTouchDown(event)) {
-                break;
-            }
-
-            // Walk up the hierarchy to determine if we're inside a scrolling container.
-            boolean isInScrollingContainer = isInScrollingContainer();
-
-            // For views inside a scrolling container, delay the pressed feedback for
-            // a short period in case this is a scroll.
-            if (isInScrollingContainer) {
-                mPrivateFlags |= PREPRESSED;
-                if (mPendingCheckForTap == null) {
-                    mPendingCheckForTap = new CheckForTap();
-                }
-                postDelayed(mPendingCheckForTap, ViewConfiguration.getTapTimeout());
-            } else {
-                // Not inside a scrolling container, so show the feedback right away
-                mPrivateFlags |= PRESSED; //comment by bran
-                refreshDrawableState();
-                checkForLongClick(0);
-            }
-            break;
-</code></pre>
-
-<pre><code>sdk16及以后：
-</code></pre>
-
-<pre><code>case MotionEvent.ACTION_DOWN:
-            mHasPerformedLongPress = false;
-
-            if (performButtonActionOnTouchDown(event)) {
                 break;
             }
 

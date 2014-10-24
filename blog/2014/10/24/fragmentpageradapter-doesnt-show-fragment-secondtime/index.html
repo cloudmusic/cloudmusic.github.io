@@ -1,0 +1,367 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>使用FragmentPagerAdapter的fragment第二次打开不能显示内容的问题分析 - cloudmusic android team dev_blog</title>
+	<meta name="author" content="">
+
+	
+	<meta name="description" content="在使用viewpager的时候有两个adapter：FragmentPagerAdapter和FragmentStatePagerAdapter，区别在于他们的instantiateItem方法是不一样的： FragmentPagerAdapter 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11 &hellip;">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="cloudmusic android team dev_blog" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script async="true" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	
+</head>
+
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">cloudmusic android team dev_blog</a></h1>
+<nav id="main-nav"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="https://www.google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:cloudmusic.github.io">
+			</form>
+		</div>
+	</div>
+</nav>
+<nav id="sub-nav" class="alignright">
+	<div class="social">
+		
+		
+		
+		
+    
+		
+		
+		
+		
+		
+		<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+		
+    
+	</div>
+	<form class="search" action="https://www.google.com/search" method="get">
+		<input class="alignright" type="text" name="q" results="0">
+		<input type="hidden" name="q" value="site:cloudmusic.github.io">
+	</form>
+</nav>
+
+</header>
+	
+		
+	
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">使用FragmentPagerAdapter的fragment第二次打开不能显示内容的问题分析</h2>
+	<div class="entry-content"><p>在使用viewpager的时候有两个adapter：FragmentPagerAdapter和FragmentStatePagerAdapter，区别在于他们的instantiateItem方法是不一样的：</p>
+
+<p>FragmentPagerAdapter</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="kd">public</span> <span class="n">Object</span> <span class="nf">instantiateItem</span><span class="o">(</span><span class="n">ViewGroup</span> <span class="n">container</span><span class="o">,</span> <span class="kt">int</span> <span class="n">position</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">mCurTransaction</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">mCurTransaction</span> <span class="o">=</span> <span class="n">mFragmentManager</span><span class="o">.</span><span class="na">beginTransaction</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kd">final</span> <span class="kt">long</span> <span class="n">itemId</span> <span class="o">=</span> <span class="n">getItemId</span><span class="o">(</span><span class="n">position</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Do we already have this fragment?</span>
+</span><span class='line'>        <span class="n">String</span> <span class="n">name</span> <span class="o">=</span> <span class="n">makeFragmentName</span><span class="o">(</span><span class="n">container</span><span class="o">.</span><span class="na">getId</span><span class="o">(),</span> <span class="n">itemId</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">Fragment</span> <span class="n">fragment</span> <span class="o">=</span> <span class="n">mFragmentManager</span><span class="o">.</span><span class="na">findFragmentByTag</span><span class="o">(</span><span class="n">name</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">fragment</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">DEBUG</span><span class="o">)</span> <span class="n">Log</span><span class="o">.</span><span class="na">v</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;Attaching item #&quot;</span> <span class="o">+</span> <span class="n">itemId</span> <span class="o">+</span> <span class="s">&quot;: f=&quot;</span> <span class="o">+</span> <span class="n">fragment</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">mCurTransaction</span><span class="o">.</span><span class="na">attach</span><span class="o">(</span><span class="n">fragment</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">fragment</span> <span class="o">=</span> <span class="n">getItem</span><span class="o">(</span><span class="n">position</span><span class="o">);</span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">DEBUG</span><span class="o">)</span> <span class="n">Log</span><span class="o">.</span><span class="na">v</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;Adding item #&quot;</span> <span class="o">+</span> <span class="n">itemId</span> <span class="o">+</span> <span class="s">&quot;: f=&quot;</span> <span class="o">+</span> <span class="n">fragment</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">mCurTransaction</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">container</span><span class="o">.</span><span class="na">getId</span><span class="o">(),</span> <span class="n">fragment</span><span class="o">,</span>
+</span><span class='line'>                    <span class="n">makeFragmentName</span><span class="o">(</span><span class="n">container</span><span class="o">.</span><span class="na">getId</span><span class="o">(),</span> <span class="n">itemId</span><span class="o">));</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">fragment</span> <span class="o">!=</span> <span class="n">mCurrentPrimaryItem</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">fragment</span><span class="o">.</span><span class="na">setMenuVisibility</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">fragment</span><span class="o">.</span><span class="na">setUserVisibleHint</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="n">fragment</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>FragmentStatePagerAdapter</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="kd">public</span> <span class="n">Object</span> <span class="nf">instantiateItem</span><span class="o">(</span><span class="n">ViewGroup</span> <span class="n">container</span><span class="o">,</span> <span class="kt">int</span> <span class="n">position</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// If we already have this item instantiated, there is nothing</span>
+</span><span class='line'>        <span class="c1">// to do.  This can happen when we are restoring the entire pager</span>
+</span><span class='line'>        <span class="c1">// from its saved state, where the fragment manager has already</span>
+</span><span class='line'>        <span class="c1">// taken care of restoring the fragments we previously had instantiated.</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">mFragments</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">&gt;</span> <span class="n">position</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">Fragment</span> <span class="n">f</span> <span class="o">=</span> <span class="n">mFragments</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">position</span><span class="o">);</span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">f</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="k">return</span> <span class="n">f</span><span class="o">;</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">mCurTransaction</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">mCurTransaction</span> <span class="o">=</span> <span class="n">mFragmentManager</span><span class="o">.</span><span class="na">beginTransaction</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">Fragment</span> <span class="n">fragment</span> <span class="o">=</span> <span class="n">getItem</span><span class="o">(</span><span class="n">position</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">DEBUG</span><span class="o">)</span> <span class="n">Log</span><span class="o">.</span><span class="na">v</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;Adding item #&quot;</span> <span class="o">+</span> <span class="n">position</span> <span class="o">+</span> <span class="s">&quot;: f=&quot;</span> <span class="o">+</span> <span class="n">fragment</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">mSavedState</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">&gt;</span> <span class="n">position</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">Fragment</span><span class="o">.</span><span class="na">SavedState</span> <span class="n">fss</span> <span class="o">=</span> <span class="n">mSavedState</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">position</span><span class="o">);</span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">fss</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">fragment</span><span class="o">.</span><span class="na">setInitialSavedState</span><span class="o">(</span><span class="n">fss</span><span class="o">);</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">while</span> <span class="o">(</span><span class="n">mFragments</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">&lt;=</span> <span class="n">position</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">mFragments</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="kc">null</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="n">fragment</span><span class="o">.</span><span class="na">setMenuVisibility</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">fragment</span><span class="o">.</span><span class="na">setUserVisibleHint</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">mFragments</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">position</span><span class="o">,</span> <span class="n">fragment</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">mCurTransaction</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">container</span><span class="o">.</span><span class="na">getId</span><span class="o">(),</span> <span class="n">fragment</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="n">fragment</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>FragmentPagerAdapter会将adapter的每个fragment加入fragmentManager管理，如果初始化adapter传的是getSupportFragmentManager(),则每个fragment都会放到activity的fragmentManager里面去。这样就会造成当viewpager所在的fragment因为popFromBackStack被移除后，再次add一次viewpager所在的fragment，viewpager里面不会显示出来fragment内容。原因是这样的：</p>
+
+<p>第一次FragmentPagerAdapter的instantiateItem方法会把每个fragment加入activity的fragmentManager当中，popFromBackStack这个viewpager所在的fragment时，并不会将viewpager里面的每个fragment调用detach。第二次就会发现fragment已经存在，则直接调用mCurTransaction.attach方法，而attachFragment方法缺发现fragment未被detach则直接跳过了：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">attachFragment</span><span class="o">(</span><span class="n">Fragment</span> <span class="n">fragment</span><span class="o">,</span> <span class="kt">int</span> <span class="n">transition</span><span class="o">,</span> <span class="kt">int</span> <span class="n">transitionStyle</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">DEBUG</span><span class="o">)</span> <span class="n">Log</span><span class="o">.</span><span class="na">v</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;attach: &quot;</span> <span class="o">+</span> <span class="n">fragment</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">fragment</span><span class="o">.</span><span class="na">mDetached</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">fragment</span><span class="o">.</span><span class="na">mDetached</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">(!</span><span class="n">fragment</span><span class="o">.</span><span class="na">mAdded</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="n">mAdded</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">mAdded</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Fragment</span><span class="o">&gt;();</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="n">mAdded</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">fragment</span><span class="o">))</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalStateException</span><span class="o">(</span><span class="s">&quot;Fragment already added: &quot;</span> <span class="o">+</span> <span class="n">fragment</span><span class="o">);</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="n">DEBUG</span><span class="o">)</span> <span class="n">Log</span><span class="o">.</span><span class="na">v</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;add from attach: &quot;</span> <span class="o">+</span> <span class="n">fragment</span><span class="o">);</span>
+</span><span class='line'>                <span class="n">mAdded</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">fragment</span><span class="o">);</span>
+</span><span class='line'>                <span class="n">fragment</span><span class="o">.</span><span class="na">mAdded</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="n">fragment</span><span class="o">.</span><span class="na">mHasMenu</span> <span class="o">&amp;&amp;</span> <span class="n">fragment</span><span class="o">.</span><span class="na">mMenuVisible</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">mNeedMenuInvalidate</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>                <span class="n">moveToState</span><span class="o">(</span><span class="n">fragment</span><span class="o">,</span> <span class="n">mCurState</span><span class="o">,</span> <span class="n">transition</span><span class="o">,</span> <span class="n">transitionStyle</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>如果使用FragmentStatePagerAdapter则不会出现这个问题，它自己内部使用mFragments数组维持fragment缓存，因为我们重新打开viewpager所在的fragment时，重新初始化了一个新的viewpager adapter，所以其实始终没用到这个缓存，每次都会重新使用getItem来new出来新fragment，然后调用mCurTransaction.add加入。</p>
+
+<h2>要避免这个问题有几种方法：</h2>
+
+<p>1.使用FragmentStatePagerAdapter
+2.初始化viewpager的adapter的时候不要使用getSupportFragmentManager()，而使用getChildFragmentManager()。这样就会找不到缓存的fragment。
+3.或者使用FragmentPagerAdapter，在viewpager所在的fragment被detach的时候显示detach viewpager里面的每一个fragment</p>
+
+<p>FragmentPagerAdapter和FragmentStatePagerAdapter区别在于：前者会保存fragment对象，后者仅会保存fragment的状态能进行恢复，占用内存少一些。</p>
+
+<p>官方也有篇讨论帖：看<a href="https://code.google.com/p/android/issues/detail?id=59579&amp;q=FragmentPagerAdapter%20instantiateItem&amp;colspec=ID%20Type%20Status%20Owner%20Summary%20Stars">这里</a></p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-24T11:03:20+08:00" pubdate data-updated="true"></time></div>
+	<div class="tags">
+
+
+	<a class='category' href='/blog/categories/android/'>android</a>, <a class='category' href='/blog/categories/fragment/'>fragment</a>, <a class='category' href='/blog/categories/fragmentpageradapter/'>fragmentpageradapter</a>, <a class='category' href='/blog/categories/lj/'>lj</a>
+
+
+</div>
+	
+	<div class="comments"><a href="#disqus_thread">Comments</a></div>
+	
+</div>
+</article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+		
+		
+		<a class="addthis_button_tweet"></a>
+		
+		
+		
+	</div>
+	
+</div>
+
+
+
+<section id="comment">
+    <h2 class="title">Comments</h2>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+</section>
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2014
+
+    cloudmusic android team dev_blog
+
+</footer>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'cloudmusicandroid';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://cloudmusic.github.io/blog/2014/10/24/fragmentpageradapter-doesnt-show-fragment-secondtime/';
+        var disqus_url = 'http://cloudmusic.github.io/blog/2014/10/24/fragmentpageradapter-doesnt-show-fragment-secondtime/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+</body>
+</html>
