@@ -34,7 +34,7 @@ sdk16以前：
                     checkForLongClick(0);
                 }
                 break;
-```
+
 sdk16及以后：
 ```java
 	case MotionEvent.ACTION_DOWN:
